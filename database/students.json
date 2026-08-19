@@ -1,0 +1,42 @@
+[
+  {
+    "id": "s1",
+    "name": "Amit Kumar",
+    "roll_no": "2026CS001",
+    "email": "amit.kumar@example.com",
+    "course": "B.Tech Computer Science",
+    "year": 3,
+    "grade": "A",
+    "created_at": "2026-08-19T14:08:00.489+05:30"
+  },
+  {
+    "id": "s2",
+    "name": "Priya Singh",
+    "roll_no": "2026CS002",
+    "email": "priya.singh@example.com",
+    "course": "B.Tech Computer Science",
+    "year": 2,
+    "grade": "A-",
+    "created_at": "2026-08-19T14:08:00.489+05:30"
+  },
+  {
+    "id": "s3",
+    "name": "Rohit Verma",
+    "roll_no": "2026IT003",
+    "email": "rohit.verma@example.com",
+    "course": "B.Tech Information Technology",
+    "year": 1,
+    "grade": "B+",
+    "created_at": "2026-08-19T14:08:00.489+05:30"
+  },
+  {
+    "id": "s1787129731686",
+    "name": "Test Student",
+    "roll_no": "2026CS010",
+    "email": "test.student@example.com",
+    "course": "B.Sc",
+    "year": 1,
+    "grade": "A",
+    "created_at": "2026-08-19T08:55:31.686Z"
+  }
+]
