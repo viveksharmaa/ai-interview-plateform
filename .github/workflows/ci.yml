@@ -1,0 +1,80 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: |
+          npm run install-all
+
+      - name: Start backend
+        run: |
+          nohup node backend/src/server.js > backend.log 2>&1 & echo $! > backend.pid
+
+      - name: Wait for backend health
+        run: |
+          set -e
+          for i in {1..30}; do
+            if curl -sSf http://localhost:5000/api/health > /dev/null; then
+              echo "Backend healthy" && break
+            fi
+            echo "Waiting for backend... ($i)"; sleep 1
+          done
+
+      - name: Run integration tests (basic CRUD)
+        run: |
+          set -euo pipefail
+          BASE="http://localhost:5000/api/students"
+          RAND=$(date +%s)
+          ROLL="2026CI${RAND}"
+          EMAIL="ci.${RAND}@example.com"
+          PAYLOAD=$(jq -n --arg name "CI Test" --arg roll_no "$ROLL" --arg email "$EMAIL" --arg course "CI" --argjson year 1 --arg grade "A" '{name:$name,roll_no:$roll_no,email:$email,course:$course,year:$year,grade:$grade}')
+          echo "$PAYLOAD" > /tmp/payload.json
+
+          # Create
+          curl -sSf -X POST -H "Content-Type: application/json" --data-binary @/tmp/payload.json $BASE > /tmp/created.json
+
+          ID=$(jq -r '.data.id' /tmp/created.json)
+          if [ -z "$ID" ] || [ "$ID" = "null" ]; then echo "Create failed"; exit 1; fi
+
+          # Get by id
+          curl -sSf $BASE/$ID > /tmp/got.json
+
+          # Update
+          UPD=$(jq -n --arg name "CI Updated" '{name:$name}')
+          curl -sSf -X PUT -H "Content-Type: application/json" -d "$UPD" $BASE/$ID > /tmp/updated.json
+
+          # Delete
+          curl -sSf -X DELETE $BASE/$ID > /tmp/deleted.json
+
+      - name: Build frontend
+        run: |
+          npm --prefix frontend run build
+
+      - name: Upload backend logs (on failure helpful)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-log
+          path: backend.log
+
+      - name: Stop backend
+        if: always()
+        run: |
+          if [ -f backend.pid ]; then kill "$(cat backend.pid)" || true; fi || true

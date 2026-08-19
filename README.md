@@ -1,3 +1,5 @@
+[![CI](https://github.com/viveksharmaa/ai-interview-plateform/actions/workflows/ci.yml/badge.svg)](https://github.com/viveksharmaa/ai-interview-plateform/actions/workflows/ci.yml)
+
 # AI Interview Platform
 
 Developer workflow scripts and quick start
